@@ -34,7 +34,7 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 	// 400 Bad Request Status code.
 	err := app.readJSON(w, r, &input)
 	if err != nil {
-		app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+		app.badRequestResponse(w, r, err)
 		return
 	}
 	// Dump the contents of the input struct in a HTTP response.
