@@ -49,7 +49,7 @@ func (app *application) notFoundResponse(w http.ResponseWriter, r *http.Request)
 }
 
 // The methodNotAllowed() method will be used to send a 405 Method Not Allowed
-// status code and JSON response to the client.
+// status code and JSON response tok the client.
 func (app *application) methodNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
 	message := fmt.Sprintf("the %s method is not supported for this resource.", r.Method)
 	app.errorResponse(w, r, http.StatusMethodNotAllowed, message)

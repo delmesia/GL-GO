@@ -15,10 +15,10 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 	// Note: The field name and types of the anonymous struct are a subset of the Movie struct
 	// that I created. This struct will be the *target decode destination*
 	var input struct {
-		Title   string   `json:"title"`
-		Year    int32    `json:"year"`
-		Runtime int32    `json:"runtime"`
-		Genres  []string `json:"genres"`
+		Title   string       `json:"title"`
+		Year    int32        `json:"year"`
+		Runtime data.Runtime `json:"runtime"`
+		Genres  []string     `json:"genres"`
 	}
 
 	/************* version 1
