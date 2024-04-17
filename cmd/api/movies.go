@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"delsanchez.gl/internal/data"
+	"delsanchez.gl/internal/validator"
 )
 
 // for "POST /v1/movies" endpoint
@@ -20,15 +21,6 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 		Runtime data.Runtime `json:"runtime"`
 		Genres  []string     `json:"genres"`
 	}
-
-	/************* version 1
-	// Initialize a new json decoder instance which reads from the request body,
-	and then use the Decode() method to decode the body contents into the input struct.
-	When I call Decode(), I've used the address-of operator to the input struct
-	as the target decode destination.
-
-	err := json.NewDecoder(r.Body).Decode(&input)
-	*****************************/
 	// Using readJSON() helper to decode the request body into the input struct.
 	// If this returns an error, we send the client an error message along with
 	// 400 Bad Request Status code.
@@ -37,6 +29,39 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 		app.badRequestResponse(w, r, err)
 		return
 	}
+
+	// Initialize a new validator instance.
+	v := validator.New()
+
+	// Use the Check() method to execute the validation checks. This will add the
+	// provided key and error message to the errors map if the check does not evaluate
+	// to true. For example, in the first line I "check that the title is not equal to the empty string"
+	// In the second line, I "check that the length of the title is less than or equal to 500 bytes long"
+	v.Check(input.Title != "", "title", "must be provided")
+	v.Check(len(input.Title) <= 500, "title", "must not be more than 500 bytes long")
+
+	v.Check(input.Year != 0, "year", "must be provided")
+	v.Check(input.Year >= 1888, "year", "must be greater than 1888")
+	v.Check(input.Year <= int32(time.Now().Year()), "year", "must not be in the future")
+
+	v.Check(input.Runtime != 0, "runtime", "must be provided")
+	v.Check(input.Runtime > 0, "runtime", "must be positive integer")
+
+	v.Check(input.Genres != nil, "genres", "must be provided")
+	v.Check(len(input.Genres) >= 1, "genres", "must contain atleast 1 genre")
+	v.Check(len(input.Genres) <= 5, "genres", "must not contain more than 5 genres")
+	// Here, I'm using the Unique() helper method to check that all the values in the
+	// input.Genres slices are unique
+	v.Check(validator.Unique(input.Genres), "genres", "must not contain duplicate values")
+
+	// Use the Valid() helper method to see if any of the checks failed. If they did,
+	// then use the failedValidationResponse() helper to send a response to the client, passing
+	// the v.Errors map.
+	if v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
 	// Dump the contents of the input struct in a HTTP response.
 	fmt.Fprintf(w, "%+v\n", input)
 }
