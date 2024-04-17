@@ -45,10 +45,10 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 	v.Check(input.Year <= int32(time.Now().Year()), "year", "must not be in the future")
 
 	v.Check(input.Runtime != 0, "runtime", "must be provided")
-	v.Check(input.Runtime > 0, "runtime", "must be positive integer")
-
+	v.Check(input.Runtime > 0, "runtime", "must be a positive integer")
 	v.Check(input.Genres != nil, "genres", "must be provided")
-	v.Check(len(input.Genres) >= 1, "genres", "must contain atleast 1 genre")
+
+	v.Check(len(input.Genres) >= 1, "genres", "must contain at least 1 genre")
 	v.Check(len(input.Genres) <= 5, "genres", "must not contain more than 5 genres")
 	// Here, I'm using the Unique() helper method to check that all the values in the
 	// input.Genres slices are unique
@@ -57,7 +57,7 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 	// Use the Valid() helper method to see if any of the checks failed. If they did,
 	// then use the failedValidationResponse() helper to send a response to the client, passing
 	// the v.Errors map.
-	if v.Valid() {
+	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}

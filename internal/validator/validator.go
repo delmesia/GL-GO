@@ -54,8 +54,8 @@ func Matches(value string, rx *regexp.Regexp) bool {
 }
 
 // Generic function which returns true if all values in a slices are unique.
-func Unique[t comparable](values []t) bool {
-	uniqueValues := make(map[t]bool)
+func Unique[T comparable](values []T) bool {
+	uniqueValues := make(map[T]bool)
 
 	for _, value := range values {
 		uniqueValues[value] = true
